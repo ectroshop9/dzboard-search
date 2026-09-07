@@ -49,7 +49,7 @@ def home():
 @app.get("/uploadbytech")
 def uploadbytech():
     from fastapi.responses import HTMLResponse
-    html_path = os.path.join(os.path.dirname(__file__), '../static/uploadbytech.html')
+    html_path = os.path.join(os.path.dirname(__file__), 'uploadbytech.html')
     with open(html_path, 'r', encoding='utf-8') as f:
         return HTMLResponse(content=f.read())
 

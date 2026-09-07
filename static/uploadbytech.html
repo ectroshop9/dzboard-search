@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فحص الكرت - DZBoard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', system-ui, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+    h1 {
+      font-size: 20px;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+    .upload-area {
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 30px 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f8fafc;
+    }
+    .upload-area:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .upload-area img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 12px;
+    }
+    .upload-area p {
+      margin: 0;
+      font-weight: 700;
+      color: #334155;
+    }
+    #fileInput { display: none; }
+    #result {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      display: none;
+    }
+    .success {
+      background: #ecfdf5;
+      border: 1px solid #86efac;
+      color: #047857;
+    }
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+    }
+    .loading {
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      color: #1d4ed8;
+    }
+    .product-name {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .confidence {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 فحص الكرت الإلكتروني</h1>
+    <p>ارفع صورة الكرت وسيتم التعرف عليه فوراً</p>
+
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <p>📸 اضغط لاختيار صورة</p>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'loading';
+      resultDiv.innerHTML = '<div class="spinner"></div><p>جاري الفحص...</p>';
+
+      try {
+        // ضغط الصورة
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = async () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            let width = img.width;
+            let height = img.height;
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            canvas.toBlob(async (blob) => {
+              const formData = new FormData();
+              formData.append('file', blob, 'card.jpg');
+
+              try {
+                const res = await fetch('/search-by-image', {
+                  method: 'POST',
+                  body: formData
+                });
+                const data = await res.json();
+
+                if (data.success && data.product?.name) {
+                  resultDiv.className = 'success';
+                  resultDiv.innerHTML = `
+                    <div class="product-name">✅ ${data.product.name}</div>
+                    <div class="confidence">نسبة التطابق: ${data.confidence_score}%</div>
+                  `;
+                } else {
+                  resultDiv.className = 'error';
+                  resultDiv.innerHTML = '<p>❌ لم يتم العثور على تطابق</p>';
+                }
+              } catch (err) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '<p>❌ حدث خطأ، حاول مرة أخرى</p>';
+              }
+            }, 'image/jpeg', 0.7);
+          };
+        };
+      } catch (err) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = '<p>❌ حدث خطأ</p>';
+      }
+    });
+  </script>
+</body>
+</html>

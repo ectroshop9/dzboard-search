@@ -46,6 +46,13 @@ def load_cache():
 def home():
     return {"status": "ok"}
 
+@app.get("/uploadbytech")
+def uploadbytech():
+    from fastapi.responses import HTMLResponse
+    html_path = os.path.join(os.path.dirname(__file__), '../static/uploadbytech.html')
+    with open(html_path, 'r', encoding='utf-8') as f:
+        return HTMLResponse(content=f.read())
+
 @app.post("/search-by-image")
 async def search_by_image(file: UploadFile = File(...)):
     global STORED_PRODUCTS_CACHE

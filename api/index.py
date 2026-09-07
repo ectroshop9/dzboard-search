@@ -42,7 +42,7 @@ def generate_board_hashes(image_bytes: bytes):
 def load_cache():
     global STORED_PRODUCTS_CACHE
     try:
-        response = supabase.from('products').select('id,name,phash,dhash').not_.is_('phash', 'null').execute()
+        response = supabase.from('products').select('id,name,phash,dhash').not_.is_('phash', None).execute()
         STORED_PRODUCTS_CACHE = response.data or []
     except Exception:
         STORED_PRODUCTS_CACHE = []

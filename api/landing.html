@@ -3,294 +3,462 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DZBoard</title>
+  <title>DZBoard - الفحص الذكي</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap');
+
+    :root {
+      --primary: #3b82f6;
+      --secondary: #8b5cf6;
+      --success: #10b981;
+      --bg: #030712;
+      --glass: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Cairo', sans-serif;
-      background: #050510;
+      background-color: var(--bg);
       color: #fff;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+      mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+    }
+
+    .glow-blob {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: -1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(40px);
     }
 
     .container {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 60px;
-      max-width: 1000px;
+      justify-content: space-between;
+      gap: 50px;
+      max-width: 1100px;
       width: 100%;
+      z-index: 1;
     }
 
-    /* 3D Canvas - Right */
     #canvas-container {
-      width: 400px;
-      height: 400px;
+      width: 500px;
+      height: 500px;
       flex-shrink: 0;
+      position: relative;
     }
 
-    /* Upload - Left */
     .upload-section {
       flex: 1;
-      max-width: 380px;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
     }
 
     .title {
-      font-size: 32px;
+      font-size: 42px;
       font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .title span {
-      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      background: linear-gradient(to right, #fff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .subtitle {
-      font-size: 13px;
-      color: #94a3b8;
-      margin-bottom: 25px;
-    }
-
-    .upload-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      padding: 35px;
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      transition: all 0.3s;
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .upload-btn:hover {
-      border-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.05);
-    }
-
-    .upload-icon {
-      font-size: 48px;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    .upload-text {
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .upload-hint {
-      font-size: 11px;
-      color: #64748b;
-    }
-
-    #result {
-      margin-top: 15px;
-      display: none;
-      padding: 18px;
-      border-radius: 14px;
-      animation: fadeIn 0.5s ease;
-      text-align: center;
-    }
-
-    .success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
-    .error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); }
-    .loading { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); }
-
-    .result-name {
-      font-size: 17px;
-      font-weight: 900;
-      margin-bottom: 10px;
-    }
-
-    .product-link {
+    .title span {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       display: inline-block;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      color: #fff;
-      padding: 11px 20px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 13px;
-      transition: all 0.3s;
     }
 
-    .product-link:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    .subtitle {
+      font-size: 15px;
+      color: #94a3b8;
+      margin-bottom: 35px;
+      line-height: 1.6;
     }
 
-    .spinner {
-      width: 25px;
-      height: 25px;
-      border: 3px solid rgba(59, 130, 246, 0.2);
-      border-top-color: #3b82f6;
+    .upload-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 40px 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+      transform: translateX(-100%);
+      transition: 0.5s;
+    }
+
+    .upload-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(59, 130, 246, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(59, 130, 246, 0.1);
+    }
+
+    .upload-card:hover::before {
+      transform: translateX(100%);
+      transition: 1s infinite;
+    }
+
+    .icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: rgba(59, 130, 246, 0.1);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      transition: 0.3s;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+    .upload-card:hover .icon-wrapper {
+      transform: scale(1.1);
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
     }
+
+    .upload-text { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .upload-hint { font-size: 13px; color: #64748b; }
+
+    #result-container {
+      display: none;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 30px;
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .loading-state { text-align: center; }
+    .loading-spinner {
+      width: 50px; height: 50px;
+      border: 3px solid rgba(59, 130, 246, 0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    .result-success { text-align: center; }
+    .result-icon {
+      width: 60px; height: 60px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 15px;
+    }
+
+    .result-name { font-size: 20px; font-weight: 800; margin-bottom: 5px; color: #fff; }
+    .result-desc { font-size: 14px; color: #94a3b8; margin-bottom: 25px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; text-decoration: none;
+      padding: 14px 28px; border-radius: 12px;
+      font-weight: 800; font-size: 15px;
+      transition: all 0.3s; width: 100%;
+      border: none; cursor: pointer;
+    }
+    .btn:hover {
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: transparent; border: 1px solid rgba(255,255,255,0.1);
+      margin-top: 10px; color: #94a3b8;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); color: #fff; box-shadow: none;}
 
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Mobile */
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column-reverse;
-        gap: 20px;
-      }
-
-      #canvas-container {
-        width: 280px;
-        height: 280px;
-      }
-
-      .upload-section {
-        text-align: center;
-      }
-
-      .title { font-size: 24px; }
+    @media (max-width: 900px) {
+      .container { flex-direction: column-reverse; gap: 30px; text-align: center; }
+      #canvas-container { width: 100%; height: 350px; }
+      .upload-section { width: 100%; max-width: 100%; }
+      .title { font-size: 32px; }
     }
   </style>
 </head>
 <body>
+  <div class="glow-blob"></div>
+  
   <div class="container">
-    <!-- Upload - Left -->
     <div class="upload-section">
-      <h1 class="title">افحص <span>كرتك</span> الآن</h1>
-      <p class="subtitle">ارفع صورة الكرت وسيتم التعرف عليه فوراً</p>
+      <div id="main-ui">
+        <span class="badge">AI Vision System</span>
+        <h1 class="title">التعرف الذكي على<br><span>اللوحات الإلكترونية</span></h1>
+        <p class="subtitle">قم برفع صورة واضحة للوحة أو الكرت الإلكتروني، وسيقوم نظامنا بالبحث في قاعدة البيانات والتعرف عليه في ثوانٍ.</p>
 
-      <div class="upload-btn" onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">📸</div>
-        <div class="upload-text">ارفع صورة الكرت</div>
-        <div class="upload-hint">اضغط هنا</div>
+        <div class="upload-card" onclick="document.getElementById('fileInput').click()">
+          <div class="icon-wrapper">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="upload-text">اضغط هنا لرفع الصورة</div>
+          <div class="upload-hint">يدعم JPG, PNG (حد أقصى 5MB)</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
       </div>
-      <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
 
-      <div id="result"></div>
+      <div id="result-container"></div>
     </div>
 
-    <!-- 3D Canvas - Right -->
     <div id="canvas-container"></div>
   </div>
 
   <script>
-    // ============ 3D Circuit Board ============
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(container.clientWidth || 400, container.clientHeight || 400);
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+    
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Board
-    const boardGeo = new THREE.BoxGeometry(3, 0.12, 3);
-    const boardMat = new THREE.MeshStandardMaterial({ color: 0x0d2818, roughness: 0.5, metalness: 0.4 });
+    const boardGroup = new THREE.Group();
+    scene.add(boardGroup);
+
+    const boardGeo = new THREE.BoxGeometry(3.2, 0.1, 3.2);
+    const boardMat = new THREE.MeshPhysicalMaterial({ 
+      color: 0x071b12, metalness: 0.7, roughness: 0.4, clearcoat: 0.5, clearcoatRoughness: 0.2
+    });
     const board = new THREE.Mesh(boardGeo, boardMat);
-    scene.add(board);
+    boardGroup.add(board);
 
-    // CPU
-    const cpuGeo = new THREE.BoxGeometry(1, 0.2, 1);
-    const cpuMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.2, metalness: 0.8 });
+    const cpuGeo = new THREE.BoxGeometry(1.2, 0.15, 1.2);
+    const cpuMat = new THREE.MeshPhysicalMaterial({ 
+      color: 0x111111, metalness: 0.9, roughness: 0.1, envMapIntensity: 1.0, clearcoat: 1.0
+    });
     const cpu = new THREE.Mesh(cpuGeo, cpuMat);
-    cpu.position.y = 0.15;
-    board.add(cpu);
+    cpu.position.y = 0.12;
+    boardGroup.add(cpu);
 
-    // Small chips
-    for (let i = 0; i < 8; i++) {
-      const chipGeo = new THREE.BoxGeometry(0.5, 0.12, 0.5);
-      const chipMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.3, metalness: 0.6 });
-      const chip = new THREE.Mesh(chipGeo, chipMat);
-      chip.position.set(Math.random() * 2.2 - 1.1, 0.12, Math.random() * 2.2 - 1.1);
-      board.add(chip);
+    const coreGeo = new THREE.PlaneGeometry(0.8, 0.8);
+    const coreMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6 });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.rotation.x = -Math.PI / 2;
+    core.position.y = 0.201;
+    boardGroup.add(core);
+
+    const compMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.7, metalness: 0.3 });
+    for (let i = 0; i < 15; i++) {
+      const w = Math.random() * 0.3 + 0.1;
+      const h = Math.random() * 0.3 + 0.1;
+      const geo = new THREE.BoxGeometry(w, 0.15, h);
+      const mesh = new THREE.Mesh(geo, compMat);
+      
+      let x = (Math.random() - 0.5) * 2.5;
+      let z = (Math.random() - 0.5) * 2.5;
+      if (Math.abs(x) < 0.8 && Math.abs(z) < 0.8) { x += 1; z += 1; }
+      
+      mesh.position.set(x, 0.12, z);
+      boardGroup.add(mesh);
     }
 
-    // Capacitors
-    for (let i = 0; i < 10; i++) {
-      const capGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.35, 12);
-      const capMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4, metalness: 0.5 });
-      const cap = new THREE.Mesh(capGeo, capMat);
-      cap.position.set(Math.random() * 2.4 - 1.2, 0.25, Math.random() * 2.4 - 1.2);
-      board.add(cap);
-    }
-
-    // Gold traces
-    for (let i = 0; i < 20; i++) {
-      const traceGeo = new THREE.BoxGeometry(0.04, 0.008, Math.random() * 1.5 + 0.4);
-      const traceMat = new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.2, metalness: 0.9, emissive: 0x3a2a00, emissiveIntensity: 0.4 });
+    const traceMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa });
+    for (let i = 0; i < 30; i++) {
+      const length = Math.random() * 1.5 + 0.5;
+      const traceGeo = new THREE.BoxGeometry(0.02, 0.01, length);
       const trace = new THREE.Mesh(traceGeo, traceMat);
-      trace.position.set(Math.random() * 2.6 - 1.3, 0.07, Math.random() * 2.6 - 1.3);
-      trace.rotation.y = Math.random() * Math.PI;
-      board.add(trace);
+      
+      let x = (Math.random() - 0.5) * 2.8;
+      let z = (Math.random() - 0.5) * 2.8;
+      
+      trace.position.set(x, 0.055, z);
+      trace.rotation.y = (Math.random() > 0.5) ? 0 : Math.PI / 2;
+      boardGroup.add(trace);
     }
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0x1a1a2e, 0.6);
-    scene.add(ambient);
+    const particlesGeo = new THREE.BufferGeometry();
+    const particleCount = 100;
+    const posArray = new Float32Array(particleCount * 3);
+    for(let i = 0; i < particleCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 5;
+    }
+    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMat = new THREE.PointsMaterial({
+      size: 0.02, color: 0x60a5fa, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending
+    });
+    const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+    scene.add(particlesMesh);
 
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    mainLight.position.set(4, 6, 4);
-    scene.add(mainLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 5, 5);
+    scene.add(dirLight);
 
-    const blueLight = new THREE.PointLight(0x3b82f6, 1.5, 10);
-    blueLight.position.set(-3, 2, -2);
-    scene.add(blueLight);
+    const blueLight = new THREE.PointLight(0x3b82f6, 2, 5);
+    blueLight.position.set(0, 1, 0);
+    boardGroup.add(blueLight);
 
-    const purpleLight = new THREE.PointLight(0x8b5cf6, 1.5, 10);
-    purpleLight.position.set(3, 2, 2);
+    const purpleLight = new THREE.PointLight(0x8b5cf6, 2, 5);
+    purpleLight.position.set(-2, 1, 2);
     scene.add(purpleLight);
 
-    camera.position.set(0, 0.5, 5.5);
+    camera.position.set(0, 2.5, 4.5);
     camera.lookAt(0, 0, 0);
 
-    // Animation
-    function animate3D() {
-      requestAnimationFrame(animate3D);
-      board.rotation.y += 0.006;
-      blueLight.intensity = 1.5 + Math.sin(Date.now() * 0.002) * 0.4;
-      purpleLight.intensity = 1.5 + Math.cos(Date.now() * 0.002) * 0.4;
-      renderer.render(scene, camera);
-    }
-    animate3D();
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
 
-    // Resize
-    window.addEventListener('resize', () => {
-      const w = container.clientWidth || 400;
-      const h = container.clientHeight || 400;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+    document.addEventListener('mousemove', (event) => {
+      mouseX = (event.clientX - windowHalfX) * 0.001;
+      mouseY = (event.clientY - windowHalfY) * 0.001;
     });
 
-    // ============ Image Search ============
-    document.getElementById('fileInput').addEventListener('change', async (e) => {
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      targetX = mouseX * 1.5;
+      targetY = mouseY * 1.5;
+      boardGroup.rotation.y += 0.005;
+      boardGroup.rotation.x += 0.05 * (targetY - boardGroup.rotation.x);
+      boardGroup.rotation.z += 0.05 * (targetX - boardGroup.rotation.z);
+      
+      boardGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.1;
+
+      coreMat.opacity = 0.5 + Math.sin(elapsedTime * 4) * 0.5;
+      coreMat.transparent = true;
+
+      particlesMesh.rotation.y = elapsedTime * 0.05;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    });
+
+    const fileInput = document.getElementById('fileInput');
+    const mainUI = document.getElementById('main-ui');
+    const resultContainer = document.getElementById('result-container');
+
+    function showLoading() {
+      mainUI.style.display = 'none';
+      resultContainer.style.display = 'block';
+      resultContainer.innerHTML = `
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <h3 style="font-weight: 800; font-size: 20px; margin-bottom: 5px;">جاري تحليل اللوحة...</h3>
+          <p style="color: #94a3b8; font-size: 14px;">يقوم الذكاء الاصطناعي بمطابقة المسارات والمكونات</p>
+        </div>
+      `;
+    }
+
+    function showResult(success, data) {
+      if (success) {
+        resultContainer.innerHTML = `
+          <div class="result-success">
+            <div class="result-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h3 class="result-name">تم التعرف بنجاح!</h3>
+            <p class="result-desc">البوردة: <strong style="color:#fff">${data.product.name}</strong></p>
+            <a href="${data.product_url || '#'}" target="_blank" class="btn">عرض المنتج في المتجر</a>
+            <button onclick="resetUI()" class="btn btn-outline">فحص لوحة أخرى</button>
+          </div>
+        `;
+      } else {
+        resultContainer.innerHTML = `
+          <div class="result-success">
+            <div class="result-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <h3 class="result-name">لم يتم العثور على تطابق</h3>
+            <p class="result-desc">لم نتمكن من التعرف على اللوحة في قاعدة البيانات الحالية.</p>
+            <button onclick="resetUI()" class="btn">حاول بصورة أوضح</button>
+          </div>
+        `;
+      }
+    }
+
+    window.resetUI = function() {
+      resultContainer.style.display = 'none';
+      mainUI.style.display = 'block';
+      fileInput.value = '';
+    }
+
+    fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      const resultDiv = document.getElementById('result');
-      resultDiv.style.display = 'block';
-      resultDiv.className = 'loading';
-      resultDiv.innerHTML = '<div class="spinner"></div><p style="color:#93c5fd;font-weight:700">جاري الفحص...</p>';
+      showLoading();
 
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -318,22 +486,17 @@
             try {
               const res = await fetch('/search-by-image', { method: 'POST', body: formData });
               const data = await res.json();
-
-              if (data.success && data.product?.name) {
-                resultDiv.className = 'success';
-                resultDiv.innerHTML = `
-                  <p class="result-name" style="color:#6ee7b7">✅ ${data.product.name}</p>
-                  <a href="${data.product_url}" target="_blank" class="product-link">🔗 عرض في المتجر</a>
-                `;
+              
+              if (data.success && data.product) {
+                showResult(true, data);
               } else {
-                resultDiv.className = 'error';
-                resultDiv.innerHTML = '<p style="color:#fca5a5;font-weight:700">❌ لم يتم العثور على تطابق</p>';
+                showResult(false);
               }
             } catch (err) {
-              resultDiv.className = 'error';
-              resultDiv.innerHTML = '<p style="color:#fca5a5;font-weight:700">❌ حدث خطأ</p>';
+              console.error(err);
+              showResult(false);
             }
-          }, 'image/jpeg', 0.7);
+          }, 'image/jpeg', 0.8);
         };
       };
     });

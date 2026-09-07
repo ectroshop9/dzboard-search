@@ -70,7 +70,13 @@ async def search_by_image(file: UploadFile = File(...)):
             lowest_distance = distance
             best_match = product
     if lowest_distance <= 25:
-        return {"success": True, "product": best_match, "confidence_score": round((1 - (lowest_distance / 128)) * 100, 2)}
+        product_url = f"https://dzboard-dz.vercel.app/store?q={best_match['name']}"
+        return {
+            "success": True,
+            "product": best_match,
+            "product_url": product_url,
+            "confidence_score": round((1 - (lowest_distance / 128)) * 100, 2)
+        }
     return {"success": False, "message": "لم يتم العثور على تطابق"}
 
 @app.post("/generate-hashes")

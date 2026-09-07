@@ -161,7 +161,7 @@
                   resultDiv.className = 'success';
                   resultDiv.innerHTML = `
                     <div class="product-name">✅ ${data.product.name}</div>
-                    <div class="confidence">نسبة التطابق: ${data.confidence_score}%</div>
+                    <a href="${data.product_url}" target="_blank" style="display:inline-block;margin-top:10px;background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;">🔗 عرض المنتج في المتجر</a>
                   `;
                 } else {
                   resultDiv.className = 'error';

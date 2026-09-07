@@ -43,10 +43,6 @@ def load_cache():
         STORED_PRODUCTS_CACHE = []
 
 @app.get("/")
-def home():
-    return {"status": "ok"}
-
-@app.get("/")
 def landing():
     from fastapi.responses import HTMLResponse
     html_path = os.path.join(os.path.dirname(__file__), 'landing.html')

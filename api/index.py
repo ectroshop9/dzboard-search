@@ -50,9 +50,7 @@ def load_cache():
 
 @app.get("/")
 def home():
-    if STORED_PRODUCTS_CACHE is None:
-        load_cache()
-    return {"status": "ok", "products": len(STORED_PRODUCTS_CACHE or [])}
+    return {"status": "ok"}
 
 @app.post("/search-by-image")
 async def search_by_image(file: UploadFile = File(...)):

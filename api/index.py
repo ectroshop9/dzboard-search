@@ -1,11 +1,12 @@
 import io
+import os
 from PIL import Image, ImageEnhance, ImageOps
 from rembg import remove
 import imagehash
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
-import os
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -42,7 +43,7 @@ def generate_board_hashes(image_bytes: bytes):
 def load_cache():
     global STORED_PRODUCTS_CACHE
     try:
-        response = supabase.from('products').select('id,name,phash,dhash').neq('phash', None).execute()
+        response = supabase.table('products').select('id,name,phash,dhash').not_.is_('phash', 'null').execute()
         STORED_PRODUCTS_CACHE = response.data or []
     except Exception:
         STORED_PRODUCTS_CACHE = []
@@ -84,5 +85,4 @@ async def reload_cache():
     load_cache()
     return {"success": True, "message": "تم تحديث الذاكرة", "products": len(STORED_PRODUCTS_CACHE or [])}
 
-from mangum import Mangum
 handler = Mangum(app)

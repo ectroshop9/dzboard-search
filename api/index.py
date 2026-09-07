@@ -42,6 +42,10 @@ def load_cache():
     except Exception:
         STORED_PRODUCTS_CACHE = []
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.get("/")
 def landing():
     from fastapi.responses import HTMLResponse

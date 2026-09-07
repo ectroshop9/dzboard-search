@@ -109,9 +109,6 @@ async def reload_cache():
     load_cache()
     return {"success": True, "message": "تم تحديث الذاكرة", "products": len(STORED_PRODUCTS_CACHE or [])}
 
-# تحميل الكاش عند التشغيل
-load_cache()
-
 # ✅ Vercel Handler
 from mangum import Mangum
 handler = Mangum(app)

@@ -6,579 +6,430 @@
   <title>DZBoard - افحص كرتك بالذكاء الاصطناعي</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
-      --primary: #3b82f6;
-      --secondary: #8b5cf6;
-      --accent: #ec4899;
-      --bg: #050510;
-      --glass: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.08);
-    }
-
     body {
       font-family: 'Cairo', sans-serif;
-      background: var(--bg);
+      background: #050510;
       color: #fff;
       min-height: 100vh;
       overflow-x: hidden;
-      cursor: default;
     }
 
-    /* ============ 3D Canvas ============ */
-    #canvas-container {
+    /* ============ Header ============ */
+    .header {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-
-    /* ============ Particles Overlay ============ */
-    #particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    /* ============ Content ============ */
-    .content {
-      position: relative;
+      right: 0;
       z-index: 100;
-      justify-content: flex-end;
-      padding-bottom: 60px;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 5, 16, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    /* ============ Hero ============ */
+    .hero {
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      text-align: center;
+      gap: 50px;
+      padding: 100px 40px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* 3D Canvas - يمين */
+    .canvas-wrapper {
+      flex: 1;
+      max-width: 500px;
+      height: 500px;
+      position: relative;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      overflow: hidden;
+      background: radial-gradient(circle at center, rgba(59,130,246,0.05), transparent);
+    }
+
+    /* Upload Section - يسار */
+    .upload-section {
+      flex: 1;
+      max-width: 450px;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
       border-radius: 50px;
       padding: 8px 16px;
-      font-size: 12px;
-      color: #94a3b8;
+      font-size: 11px;
+      color: #60a5fa;
       margin-bottom: 20px;
-      backdrop-filter: blur(20px);
-      animation: fadeInDown 0.8s ease;
     }
 
     .badge-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #10b981;
       animation: pulse 2s infinite;
     }
 
     .title {
-      font-size: clamp(36px, 8vw, 72px);
+      font-size: clamp(28px, 5vw, 44px);
       font-weight: 900;
-      line-height: 1.2;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
-      background-size: 300% 300%;
+      line-height: 1.3;
+      margin-bottom: 15px;
+    }
+
+    .title span {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: gradientShift 4s ease infinite;
-      filter: drop-shadow(0 0 30px rgba(96, 165, 250, 0.3));
     }
 
     .subtitle {
-      font-size: clamp(14px, 3vw, 18px);
+      font-size: 14px;
       color: #94a3b8;
-      max-width: 550px;
       line-height: 1.8;
-      margin-bottom: 35px;
-      animation: fadeInUp 0.8s ease 0.3s both;
+      margin-bottom: 30px;
     }
 
-    /* ============ Upload Card ============ */
     .upload-card {
-      background: var(--glass);
-      backdrop-filter: blur(30px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 10px;
-      max-width: 420px;
-      width: 100%;
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      animation: fadeInUp 0.8s ease 0.6s both;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .upload-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: conic-gradient(
-        transparent,
-        rgba(59, 130, 246, 0.1),
-        transparent,
-        rgba(139, 92, 246, 0.1),
-        transparent
-      );
-      animation: rotateGlow 6s linear infinite;
-      pointer-events: none;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 25px;
+      transition: all 0.3s;
     }
 
     .upload-card:hover {
       border-color: rgba(59, 130, 246, 0.3);
-      transform: translateY(-5px);
-      box-shadow: 0 20px 60px rgba(59, 130, 246, 0.15);
+      box-shadow: 0 10px 40px rgba(59, 130, 246, 0.1);
     }
 
     .upload-btn {
-      position: relative;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 15px;
       cursor: pointer;
-      padding: 40px 30px;
-      border: 2px dashed rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      transition: all 0.4s;
+      padding: 25px;
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      transition: all 0.3s;
       background: rgba(0, 0, 0, 0.2);
     }
 
     .upload-btn:hover {
-      border-color: rgba(59, 130, 246, 0.5);
+      border-color: #3b82f6;
       background: rgba(59, 130, 246, 0.05);
     }
 
     .upload-icon {
-      font-size: 56px;
+      font-size: 36px;
       animation: float 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+    }
+
+    .upload-info {
+      text-align: right;
     }
 
     .upload-text {
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 700;
       color: #e2e8f0;
     }
 
     .upload-hint {
-      font-size: 12px;
+      font-size: 11px;
       color: #64748b;
+      margin-top: 4px;
     }
 
-    /* ============ Result ============ */
     #result {
       margin-top: 15px;
       display: none;
-      padding: 20px;
-      border-radius: 16px;
-      position: relative;
-      z-index: 2;
-      animation: fadeInUp 0.5s ease;
+      padding: 18px;
+      border-radius: 14px;
+      animation: fadeIn 0.5s ease;
     }
 
-    .success {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.1);
-    }
-
-    .error {
-      background: rgba(239, 68, 68, 0.08);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-    }
-
-    .loading {
-      background: rgba(59, 130, 246, 0.08);
-      border: 1px solid rgba(59, 130, 246, 0.25);
-    }
+    .success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+    .error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); }
+    .loading { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); }
 
     .result-name {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .product-link {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       color: #fff;
-      padding: 14px 28px;
-      border-radius: 12px;
+      padding: 12px 22px;
+      border-radius: 10px;
       text-decoration: none;
-      font-weight: 800;
-      font-size: 14px;
-      transition: all 0.4s;
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-    }
-
-    .product-link:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 8px 35px rgba(59, 130, 246, 0.5);
-    }
-
-    /* ============ Stats ============ */
-    .stats {
-      display: flex;
-      gap: 15px;
-      margin-top: 35px;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: fadeInUp 0.8s ease 0.9s both;
-    }
-
-    .stat {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 18px 25px;
-      min-width: 110px;
+      font-weight: 700;
+      font-size: 13px;
       transition: all 0.3s;
     }
 
-    .stat:hover {
-      transform: translateY(-5px);
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-
-    .stat-value {
-      font-size: 24px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #60a5fa, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    /* ============ Animations ============ */
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.5); }
-    }
-
-    @keyframes rotateGlow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .product-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
     }
 
     .spinner {
-      width: 30px;
-      height: 30px;
+      width: 25px;
+      height: 25px;
       border: 3px solid rgba(59, 130, 246, 0.2);
       border-top-color: #3b82f6;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
-      margin: 0 auto 10px;
+      margin: 0 auto 8px;
+    }
+
+    /* ============ Features ============ */
+    .features {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #94a3b8;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .feature span { font-size: 16px; }
+
+    /* ============ Animations ============ */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* ============ Mobile ============ */
-    @media (max-width: 768px) {
-      .upload-card { max-width: 350px; }
-      .stat { min-width: 90px; padding: 14px 18px; }
-      .stat-value { font-size: 20px; }
+    @media (max-width: 968px) {
+      .hero {
+        flex-direction: column-reverse;
+        padding: 80px 20px 30px;
+        gap: 30px;
+      }
+
+      .canvas-wrapper {
+        max-width: 350px;
+        height: 300px;
+        order: -1;
+      }
+
+      .header {
+        padding: 15px 20px;
+      }
+
+      .nav-links { display: none; }
     }
   </style>
 </head>
 <body>
-  <div id="canvas-container"></div>
-  <canvas id="particles"></canvas>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">DZBoard</div>
+    <nav class="nav-links">
+      <a href="#">الرئيسية</a>
+      <a href="#">المتجر</a>
+      <a href="#">من نحن</a>
+    </nav>
+  </header>
 
-  <div class="content">
-    <div class="badge">
-      <span class="badge-dot"></span>
-      نظام ذكاء اصطناعي متطور
+  <!-- Hero -->
+  <section class="hero">
+    <!-- Upload - Left -->
+    <div class="upload-section">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        ذكاء اصطناعي للتعرف على القطع
+      </div>
+      <h1 class="title">افحص <span>كرتك الإلكتروني</span> في ثوانٍ</h1>
+      <p class="subtitle">ارفع صورة الكرت وسيتعرف النظام على الموديل فوراً ويعرضه لك في المتجر</p>
+
+      <div class="upload-card">
+        <div class="upload-btn" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📸</div>
+          <div class="upload-info">
+            <div class="upload-text">ارفع صورة الكرت</div>
+            <div class="upload-hint">من الكاميرا أو المعرض</div>
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
+        
+        <div id="result"></div>
+      </div>
+
+      <div class="features">
+        <div class="feature"><span>🎯</span> دقة 99%</div>
+        <div class="feature"><span>⚡</span> نتيجة فورية</div>
+        <div class="feature"><span>📦</span> +90 قطعة</div>
+      </div>
     </div>
 
-    <h1 class="title">DZBoard</h1>
-    <p class="subtitle">افحص كرتك الإلكتروني في ثوانٍ - ارفع صورة وسيتعرف الذكاء الاصطناعي على القطعة فوراً</p>
-
-    <div class="upload-card">
-      <div class="upload-btn" onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">🔍</div>
-        <div class="upload-text">ارفع صورة الكرت هنا</div>
-        <div class="upload-hint">اضغط لاختيار صورة من الكاميرا أو المعرض</div>
-      </div>
-      <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
-      
-      <div id="result"></div>
+    <!-- 3D Canvas - Right -->
+    <div class="canvas-wrapper">
+      <div id="canvas-container"></div>
     </div>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-value">+90</div>
-        <div class="stat-label">قطعة متوفرة</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">99%</div>
-        <div class="stat-label">دقة التعرف</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value">2s</div>
-        <div class="stat-label">زمن الفحص</div>
-      </div>
-    </div>
-  </div>
+  </section>
 
   <script>
     // ============ 3D Circuit Board ============
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x050510, 5, 15);
-
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
     // Board
-    const boardGeo = new THREE.BoxGeometry(3.5, 0.1, 3.5);
-    const boardMat = new THREE.MeshStandardMaterial({
-      color: 0x0d2818,
-      roughness: 0.6,
-      metalness: 0.3,
-      transparent: true,
-      opacity: 0.7,
-    });
+    const boardGeo = new THREE.BoxGeometry(3, 0.12, 3);
+    const boardMat = new THREE.MeshStandardMaterial({ color: 0x0d2818, roughness: 0.5, metalness: 0.4 });
     const board = new THREE.Mesh(boardGeo, boardMat);
-    board.castShadow = true;
-    board.receiveShadow = true;
     scene.add(board);
 
-    // CPU Chip
-    const cpuGeo = new THREE.BoxGeometry(1.2, 0.25, 1.2);
-    const cpuMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a,
-      roughness: 0.3,
-      metalness: 0.7,
-    });
+    // CPU
+    const cpuGeo = new THREE.BoxGeometry(1, 0.2, 1);
+    const cpuMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.2, metalness: 0.8 });
     const cpu = new THREE.Mesh(cpuGeo, cpuMat);
-    cpu.position.y = 0.2;
-    cpu.castShadow = true;
+    cpu.position.y = 0.15;
     board.add(cpu);
 
-    // Small Chips
-    const chipPositions = [
-      [-1.5, 0, -1.2], [1.3, 0, -1.5], [-1.8, 0, 1], [1.6, 0, 1.4],
-      [-0.5, 0, -2], [0.7, 0, 1.8], [-1.2, 0, 0.3], [0.4, 0, -1]
-    ];
-
-    chipPositions.forEach((pos, i) => {
-      const chipGeo = new THREE.BoxGeometry(0.7, 0.15, 0.7);
-      const chipMat = new THREE.MeshStandardMaterial({
-        color: i % 3 === 0 ? 0x2a2a2a : 0x1e1e1e,
-        roughness: 0.4,
-        metalness: 0.6,
-      });
+    // Small chips
+    for (let i = 0; i < 8; i++) {
+      const chipGeo = new THREE.BoxGeometry(0.5, 0.12, 0.5);
+      const chipMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.3, metalness: 0.6 });
       const chip = new THREE.Mesh(chipGeo, chipMat);
-      chip.position.set(pos[0], 0.15, pos[1]);
+      chip.position.set(Math.random() * 2.2 - 1.1, 0.12, Math.random() * 2.2 - 1.1);
       board.add(chip);
-    });
+    }
 
-    // Capacitors (cylinders)
-    for (let i = 0; i < 12; i++) {
-      const capGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.4, 16);
-      const capMat = new THREE.MeshStandardMaterial({
-        color: [0x111111, 0x222222, 0x333333][i % 3],
-        roughness: 0.5,
-        metalness: 0.4,
-      });
+    // Capacitors
+    for (let i = 0; i < 10; i++) {
+      const capGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.35, 12);
+      const capMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4, metalness: 0.5 });
       const cap = new THREE.Mesh(capGeo, capMat);
-      cap.position.set(
-        Math.random() * 4 - 2,
-        0.27,
-        Math.random() * 4 - 2
-      );
+      cap.position.set(Math.random() * 2.4 - 1.2, 0.25, Math.random() * 2.4 - 1.2);
       board.add(cap);
     }
 
-    // Gold Traces
-    for (let i = 0; i < 25; i++) {
-      const traceGeo = new THREE.BoxGeometry(0.04, 0.01, Math.random() * 2 + 0.5);
-      const traceMat = new THREE.MeshStandardMaterial({
-        color: 0xd4a017,
-        roughness: 0.2,
-        metalness: 0.9,
-        emissive: 0x3a2a00,
-        emissiveIntensity: 0.5,
-      });
+    // Gold traces
+    for (let i = 0; i < 20; i++) {
+      const traceGeo = new THREE.BoxGeometry(0.04, 0.008, Math.random() * 1.5 + 0.4);
+      const traceMat = new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.2, metalness: 0.9, emissive: 0x3a2a00, emissiveIntensity: 0.4 });
       const trace = new THREE.Mesh(traceGeo, traceMat);
-      trace.position.set(
-        Math.random() * 4 - 2,
-        0.08,
-        Math.random() * 4 - 2
-      );
+      trace.position.set(Math.random() * 2.6 - 1.3, 0.07, Math.random() * 2.6 - 1.3);
       trace.rotation.y = Math.random() * Math.PI;
       board.add(trace);
     }
 
-    // Connectors
-    const connectorGeo = new THREE.BoxGeometry(0.5, 0.1, 0.3);
-    const connectorMat = new THREE.MeshStandardMaterial({
-      color: 0x888888,
-      roughness: 0.2,
-      metalness: 0.9,
-    });
-    for (let i = -2; i <= 2; i += 0.5) {
-      const conn = new THREE.Mesh(connectorGeo, connectorMat);
-      conn.position.set(i, -0.1, 2.5);
-      board.add(conn);
-    }
-
     // Lights
-    const ambient = new THREE.AmbientLight(0x1a1a2e, 0.5);
+    const ambient = new THREE.AmbientLight(0x1a1a2e, 0.6);
     scene.add(ambient);
 
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    mainLight.position.set(5, 8, 5);
-    mainLight.castShadow = true;
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    mainLight.position.set(4, 6, 4);
     scene.add(mainLight);
 
-    const blueLight = new THREE.PointLight(0x3b82f6, 2, 15);
-    blueLight.position.set(-4, 3, -3);
+    const blueLight = new THREE.PointLight(0x3b82f6, 1.5, 10);
+    blueLight.position.set(-3, 2, -2);
     scene.add(blueLight);
 
-    const purpleLight = new THREE.PointLight(0x8b5cf6, 2, 15);
-    purpleLight.position.set(4, 3, 3);
+    const purpleLight = new THREE.PointLight(0x8b5cf6, 1.5, 10);
+    purpleLight.position.set(3, 2, 2);
     scene.add(purpleLight);
 
-    const pinkLight = new THREE.PointLight(0xec4899, 1.5, 12);
-    pinkLight.position.set(0, -2, 5);
-    scene.add(pinkLight);
-
-    camera.position.set(0, 3, 9);
-    camera.lookAt(0, 1, 0);
-
-    // Mouse interaction
-    let mouseX = 0, mouseY = 0;
-    document.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    // Touch interaction
-    document.addEventListener('touchmove', (e) => {
-      if (e.touches[0]) {
-        mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
-        mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
-      }
-    });
+    camera.position.set(0, 0.5, 5.5);
+    camera.lookAt(0, 0, 0);
 
     // Animation
     function animate3D() {
       requestAnimationFrame(animate3D);
-      board.position.y = 5;
-    board.rotation.y += 0.004;
-      board.rotation.x += (mouseY * 0.3 - board.rotation.x) * 0.05;
-      board.position.x += (mouseX * 0.5 - board.position.x) * 0.05;
-      
-      blueLight.intensity = 2 + Math.sin(Date.now() * 0.002) * 0.5;
-      purpleLight.intensity = 2 + Math.cos(Date.now() * 0.002) * 0.5;
-      
+      board.rotation.y += 0.006;
+      blueLight.intensity = 1.5 + Math.sin(Date.now() * 0.002) * 0.4;
+      purpleLight.intensity = 1.5 + Math.cos(Date.now() * 0.002) * 0.4;
       renderer.render(scene, camera);
     }
     animate3D();
 
     // Resize
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+    function resizeCanvas() {
+      camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // ============ Particles ============
-    const particleCanvas = document.getElementById('particles');
-    const pCtx = particleCanvas.getContext('2d');
-    particleCanvas.width = window.innerWidth;
-    particleCanvas.height = window.innerHeight;
-
-    const particles = [];
-    for (let i = 0; i < 80; i++) {
-      particles.push({
-        x: Math.random() * particleCanvas.width,
-        y: Math.random() * particleCanvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.5 + 0.1,
-      });
+      renderer.setSize(container.clientWidth, container.clientHeight);
     }
-
-    function animateParticles() {
-      requestAnimationFrame(animateParticles);
-      pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-      
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        
-        if (p.x < 0 || p.x > particleCanvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > particleCanvas.height) p.vy *= -1;
-        
-        pCtx.beginPath();
-        pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        pCtx.fillStyle = `rgba(96, 165, 250, ${p.opacity})`;
-        pCtx.fill();
-      });
-    }
-    animateParticles();
-
-    window.addEventListener('resize', () => {
-      particleCanvas.width = window.innerWidth;
-      particleCanvas.height = window.innerHeight;
-    });
+    window.addEventListener('resize', resizeCanvas);
 
     // ============ Image Search ============
     document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -588,7 +439,7 @@
       const resultDiv = document.getElementById('result');
       resultDiv.style.display = 'block';
       resultDiv.className = 'loading';
-      resultDiv.innerHTML = '<div class="spinner"></div><p style="color:#93c5fd;font-weight:700">🔄 جاري الفحص...</p>';
+      resultDiv.innerHTML = '<div class="spinner"></div><p style="color:#93c5fd;font-weight:700;text-align:center">جاري الفحص...</p>';
 
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -614,25 +465,22 @@
             formData.append('file', blob, 'card.jpg');
 
             try {
-              const res = await fetch('/search-by-image', {
-                method: 'POST',
-                body: formData
-              });
+              const res = await fetch('/search-by-image', { method: 'POST', body: formData });
               const data = await res.json();
 
               if (data.success && data.product?.name) {
                 resultDiv.className = 'success';
                 resultDiv.innerHTML = `
                   <p class="result-name" style="color:#6ee7b7">✅ ${data.product.name}</p>
-                  <a href="${data.product_url}" target="_blank" class="product-link">🔗 عرض المنتج في المتجر</a>
+                  <a href="${data.product_url}" target="_blank" class="product-link">🔗 عرض في المتجر</a>
                 `;
               } else {
                 resultDiv.className = 'error';
-                resultDiv.innerHTML = '<p style="color:#fca5a5;font-weight:700">❌ لم يتم العثور على تطابق</p>';
+                resultDiv.innerHTML = '<p style="color:#fca5a5;font-weight:700;text-align:center">❌ لم يتم العثور على تطابق</p>';
               }
             } catch (err) {
               resultDiv.className = 'error';
-              resultDiv.innerHTML = '<p style="color:#fca5a5;font-weight:700">❌ حدث خطأ</p>';
+              resultDiv.innerHTML = '<p style="color:#fca5a5;font-weight:700;text-align:center">❌ حدث خطأ</p>';
             }
           }, 'image/jpeg', 0.7);
         };

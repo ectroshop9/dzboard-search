@@ -32,6 +32,7 @@
       position: relative;
     }
 
+    /* الشبكة الخلفية المضيئة */
     body::before {
       content: "";
       position: absolute;
@@ -47,37 +48,39 @@
 
     .glow-blob {
       position: absolute;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%);
       border-radius: 50%;
       z-index: -1;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      filter: blur(40px);
+      filter: blur(50px);
     }
 
     .container {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 50px;
-      max-width: 1100px;
+      gap: 30px;
+      max-width: 1200px;
       width: 100%;
       z-index: 1;
     }
 
+    /* 3D Canvas - Right */
     #canvas-container {
-      width: 500px;
+      width: 600px;
       height: 500px;
       flex-shrink: 0;
       position: relative;
     }
 
+    /* Upload - Left */
     .upload-section {
       flex: 1;
-      max-width: 420px;
+      max-width: 450px;
       position: relative;
     }
 
@@ -96,10 +99,10 @@
     }
 
     .title {
-      font-size: 42px;
+      font-size: 46px;
       font-weight: 900;
       line-height: 1.2;
-      margin-bottom: 12px;
+      margin-bottom: 15px;
       background: linear-gradient(to right, #fff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -113,7 +116,7 @@
     }
 
     .subtitle {
-      font-size: 15px;
+      font-size: 16px;
       color: #94a3b8;
       margin-bottom: 35px;
       line-height: 1.6;
@@ -146,7 +149,7 @@
       transform: translateY(-5px);
       border-color: rgba(59, 130, 246, 0.4);
       background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
     }
 
     .upload-card:hover::before {
@@ -205,10 +208,8 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 24px; margin: 0 auto 15px;
     }
-
     .result-name { font-size: 20px; font-weight: 800; margin-bottom: 5px; color: #fff; }
     .result-desc { font-size: 14px; color: #94a3b8; margin-bottom: 25px; }
-
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -218,14 +219,8 @@
       transition: all 0.3s; width: 100%;
       border: none; cursor: pointer;
     }
-    .btn:hover {
-      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-      transform: translateY(-2px);
-    }
-    .btn-outline {
-      background: transparent; border: 1px solid rgba(255,255,255,0.1);
-      margin-top: 10px; color: #94a3b8;
-    }
+    .btn:hover { box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); transform: translateY(-2px); }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; color: #94a3b8; }
     .btn-outline:hover { background: rgba(255,255,255,0.05); color: #fff; box-shadow: none;}
 
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -243,33 +238,38 @@
   <div class="glow-blob"></div>
   
   <div class="container">
+    <!-- Upload Section -->
     <div class="upload-section">
       <div id="main-ui">
-        <span class="badge">AI Vision System</span>
-        <h1 class="title">التعرف الذكي على<br><span>اللوحات الإلكترونية</span></h1>
-        <p class="subtitle">قم برفع صورة واضحة للوحة أو الكرت الإلكتروني، وسيقوم نظامنا بالبحث في قاعدة البيانات والتعرف عليه في ثوانٍ.</p>
+        <span class="badge">نظام البحث المرئي</span>
+        <h1 class="title">التعرف الذكي على<br><span>شاشات التلفاز</span></h1>
+        <p class="subtitle">قم برفع صورة واضحة للتلفاز أو شاشة العرض، وسيقوم النظام بمطابقتها مع قاعدة بيانات الأجهزة فوراً.</p>
 
         <div class="upload-card" onclick="document.getElementById('fileInput').click()">
           <div class="icon-wrapper">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa;">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
+              <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+              <polyline points="17 2 12 7 7 2"></polyline>
             </svg>
           </div>
-          <div class="upload-text">اضغط هنا لرفع الصورة</div>
+          <div class="upload-text">اضغط هنا لرفع صورة الشاشة</div>
           <div class="upload-hint">يدعم JPG, PNG (حد أقصى 5MB)</div>
         </div>
         <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
       </div>
 
+      <!-- Result Section -->
       <div id="result-container"></div>
     </div>
 
+    <!-- 3D Canvas -->
     <div id="canvas-container"></div>
   </div>
 
   <script>
+    // ==========================================
+    // 3D EXPERIANCE - 3D REALISTIC SMART TV
+    // ==========================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -279,124 +279,154 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    const boardGroup = new THREE.Group();
-    scene.add(boardGroup);
+    const tvGroup = new THREE.Group();
+    scene.add(tvGroup);
 
-    const boardGeo = new THREE.BoxGeometry(3.2, 0.1, 3.2);
-    const boardMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0x071b12, metalness: 0.7, roughness: 0.4, clearcoat: 0.5, clearcoatRoughness: 0.2
+    // مقاسات التلفاز (شاشة سينمائية عريضة 16:9)
+    const tvWidth = 4.2;
+    const tvHeight = 2.3;
+    const tvThickness = 0.08;
+
+    // 1. الإطار الخارجي والخلفية (بلاستيك غير لامع)
+    const frameGeo = new THREE.BoxGeometry(tvWidth, tvHeight, tvThickness);
+    const frameMat = new THREE.MeshPhysicalMaterial({ 
+      color: 0x111111, roughness: 0.8, metalness: 0.2
     });
-    const board = new THREE.Mesh(boardGeo, boardMat);
-    boardGroup.add(board);
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    tvGroup.add(frame);
 
-    const cpuGeo = new THREE.BoxGeometry(1.2, 0.15, 1.2);
-    const cpuMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0x111111, metalness: 0.9, roughness: 0.1, envMapIntensity: 1.0, clearcoat: 1.0
+    // 2. إنشاء نسيج (Texture) حيوي للشاشة باستخدام Canvas
+    const screenCanvas = document.createElement('canvas');
+    screenCanvas.width = 1024;
+    screenCanvas.height = 512;
+    const ctx = screenCanvas.getContext('2d');
+    const screenTexture = new THREE.CanvasTexture(screenCanvas);
+    screenTexture.minFilter = THREE.LinearFilter;
+
+    // 3. شاشة العرض (زجاج لامع ومضيء)
+    const screenGeo = new THREE.PlaneGeometry(tvWidth - 0.08, tvHeight - 0.08);
+    const screenMat = new THREE.MeshPhysicalMaterial({
+      map: screenTexture,
+      emissive: 0xffffff,
+      emissiveMap: screenTexture,
+      emissiveIntensity: 1.2, // قوة سطوع الشاشة
+      roughness: 0.05, // زجاج أملس جداً يعكس الضوء
+      metalness: 0.1,
+      clearcoat: 1.0, 
+      clearcoatRoughness: 0.05
     });
-    const cpu = new THREE.Mesh(cpuGeo, cpuMat);
-    cpu.position.y = 0.12;
-    boardGroup.add(cpu);
+    const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+    screenMesh.position.z = (tvThickness / 2) + 0.005; // أمام الإطار مباشرة
+    tvGroup.add(screenMesh);
 
-    const coreGeo = new THREE.PlaneGeometry(0.8, 0.8);
-    const coreMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6 });
-    const core = new THREE.Mesh(coreGeo, coreMat);
-    core.rotation.x = -Math.PI / 2;
-    core.position.y = 0.201;
-    boardGroup.add(core);
-
-    const compMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.7, metalness: 0.3 });
-    for (let i = 0; i < 15; i++) {
-      const w = Math.random() * 0.3 + 0.1;
-      const h = Math.random() * 0.3 + 0.1;
-      const geo = new THREE.BoxGeometry(w, 0.15, h);
-      const mesh = new THREE.Mesh(geo, compMat);
-      
-      let x = (Math.random() - 0.5) * 2.5;
-      let z = (Math.random() - 0.5) * 2.5;
-      if (Math.abs(x) < 0.8 && Math.abs(z) < 0.8) { x += 1; z += 1; }
-      
-      mesh.position.set(x, 0.12, z);
-      boardGroup.add(mesh);
-    }
-
-    const traceMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa });
-    for (let i = 0; i < 30; i++) {
-      const length = Math.random() * 1.5 + 0.5;
-      const traceGeo = new THREE.BoxGeometry(0.02, 0.01, length);
-      const trace = new THREE.Mesh(traceGeo, traceMat);
-      
-      let x = (Math.random() - 0.5) * 2.8;
-      let z = (Math.random() - 0.5) * 2.8;
-      
-      trace.position.set(x, 0.055, z);
-      trace.rotation.y = (Math.random() > 0.5) ? 0 : Math.PI / 2;
-      boardGroup.add(trace);
-    }
-
-    const particlesGeo = new THREE.BufferGeometry();
-    const particleCount = 100;
-    const posArray = new Float32Array(particleCount * 3);
-    for(let i = 0; i < particleCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 5;
-    }
-    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const particlesMat = new THREE.PointsMaterial({
-      size: 0.02, color: 0x60a5fa, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending
+    // 4. حامل التلفاز (Stand - ألمنيوم مصقول)
+    const metalMat = new THREE.MeshStandardMaterial({ 
+      color: 0xcccccc, metalness: 1.0, roughness: 0.3 
     });
-    const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
-    scene.add(particlesMesh);
+    
+    // رقبة الحامل
+    const neckGeo = new THREE.CylinderGeometry(0.1, 0.15, 0.4, 16);
+    const neck = new THREE.Mesh(neckGeo, metalMat);
+    neck.position.y = -(tvHeight / 2) - 0.2;
+    tvGroup.add(neck);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    // قاعدة الحامل
+    const baseGeo = new THREE.BoxGeometry(1.4, 0.05, 0.7);
+    const base = new THREE.Mesh(baseGeo, metalMat);
+    base.position.y = -(tvHeight / 2) - 0.4;
+    tvGroup.add(base);
+
+    // إضاءة المشهد (لعكس لمعان الزجاج والمعدن)
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight.position.set(5, 5, 5);
     scene.add(dirLight);
 
-    const blueLight = new THREE.PointLight(0x3b82f6, 2, 5);
-    blueLight.position.set(0, 1, 0);
-    boardGroup.add(blueLight);
+    // إضاءة زرقاء خفيفة خلف التلفاز (Ambilight)
+    const backLight = new THREE.PointLight(0x3b82f6, 1.5, 6);
+    backLight.position.set(0, 0, -2);
+    tvGroup.add(backLight);
 
-    const purpleLight = new THREE.PointLight(0x8b5cf6, 2, 5);
-    purpleLight.position.set(-2, 1, 2);
-    scene.add(purpleLight);
-
-    camera.position.set(0, 2.5, 4.5);
+    camera.position.set(0, 0, 5.5);
     camera.lookAt(0, 0, 0);
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-    const windowHalfX = window.innerWidth / 2;
-    const windowHalfY = window.innerHeight / 2;
-
+    // تفاعل التلفاز مع الماوس
+    let mouseX = 0; let mouseY = 0;
+    let targetX = 0; let targetY = 0;
     document.addEventListener('mousemove', (event) => {
-      mouseX = (event.clientX - windowHalfX) * 0.001;
-      mouseY = (event.clientY - windowHalfY) * 0.001;
+      mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
+      mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
     });
 
     const clock = new THREE.Clock();
 
     function animate() {
       requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      const time = clock.getElapsedTime();
 
-      targetX = mouseX * 1.5;
-      targetY = mouseY * 1.5;
-      boardGroup.rotation.y += 0.005;
-      boardGroup.rotation.x += 0.05 * (targetY - boardGroup.rotation.x);
-      boardGroup.rotation.z += 0.05 * (targetX - boardGroup.rotation.z);
+      // تحريك التلفاز (المنظور)
+      targetX = mouseX;
+      targetY = mouseY;
+      tvGroup.rotation.y += 0.05 * (targetX - tvGroup.rotation.y);
+      tvGroup.rotation.x += 0.05 * (targetY - tvGroup.rotation.x);
       
-      boardGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.1;
+      // حركة طفو خفيفة
+      tvGroup.position.y = Math.sin(time) * 0.05;
 
-      coreMat.opacity = 0.5 + Math.sin(elapsedTime * 4) * 0.5;
-      coreMat.transparent = true;
-
-      particlesMesh.rotation.y = elapsedTime * 0.05;
+      // تحديث محتوى الشاشة (رسم رادار وشبكة مسح ذكية)
+      drawScreen(time);
 
       renderer.render(scene, camera);
     }
+
+    function drawScreen(time) {
+      // تنظيف الشاشة ورسم خلفية زرقاء داكنة
+      const grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0, '#040b16');
+      grad.addColorStop(1, '#0b1d3a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 512);
+
+      // رسم شبكة (Grid)
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.2)';
+      ctx.lineWidth = 1;
+      for(let i=0; i<1024; i+=40) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+      }
+      for(let i=0; i<512; i+=40) {
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1024, i); ctx.stroke();
+      }
+
+      // خط مسح متحرك (Scanner)
+      const scanY = (time * 150) % 512;
+      ctx.fillStyle = 'rgba(96, 165, 250, 0.4)';
+      ctx.fillRect(0, scanY, 1024, 10);
+      
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#60a5fa';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 50px Cairo, sans-serif';
+      ctx.textAlign = 'center';
+      
+      // تأثير النبض في النص
+      ctx.globalAlpha = 0.5 + Math.abs(Math.sin(time * 2)) * 0.5;
+      ctx.fillText('AI VISION SYSTEM', 512, 256);
+      
+      ctx.font = '24px Cairo, sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('WAITING FOR INPUT...', 512, 300);
+      
+      ctx.globalAlpha = 1.0;
+      ctx.shadowBlur = 0;
+
+      // إخبار Three.js بتحديث نسيج الشاشة
+      screenTexture.needsUpdate = true;
+    }
+
     animate();
 
+    // Resize handler
     window.addEventListener('resize', () => {
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -405,6 +435,9 @@
       camera.updateProjectionMatrix();
     });
 
+    // ==========================================
+    // LOGIC - IMAGE UPLOAD & API
+    // ==========================================
     const fileInput = document.getElementById('fileInput');
     const mainUI = document.getElementById('main-ui');
     const resultContainer = document.getElementById('result-container');
@@ -415,8 +448,8 @@
       resultContainer.innerHTML = `
         <div class="loading-state">
           <div class="loading-spinner"></div>
-          <h3 style="font-weight: 800; font-size: 20px; margin-bottom: 5px;">جاري تحليل اللوحة...</h3>
-          <p style="color: #94a3b8; font-size: 14px;">يقوم الذكاء الاصطناعي بمطابقة المسارات والمكونات</p>
+          <h3 style="font-weight: 800; font-size: 20px; margin-bottom: 5px;">جاري فحص الشاشة...</h3>
+          <p style="color: #94a3b8; font-size: 14px;">يتم الآن مطابقة المعالم في قاعدة البيانات</p>
         </div>
       `;
     }
@@ -429,9 +462,9 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <h3 class="result-name">تم التعرف بنجاح!</h3>
-            <p class="result-desc">البوردة: <strong style="color:#fff">${data.product.name}</strong></p>
-            <a href="${data.product_url || '#'}" target="_blank" class="btn">عرض المنتج في المتجر</a>
-            <button onclick="resetUI()" class="btn btn-outline">فحص لوحة أخرى</button>
+            <p class="result-desc">الشاشة: <strong style="color:#fff">${data.product.name}</strong></p>
+            <a href="${data.product_url || '#'}" target="_blank" class="btn">عرض تفاصيل المنتج</a>
+            <button onclick="resetUI()" class="btn btn-outline">فحص شاشة أخرى</button>
           </div>
         `;
       } else {
@@ -441,7 +474,7 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </div>
             <h3 class="result-name">لم يتم العثور على تطابق</h3>
-            <p class="result-desc">لم نتمكن من التعرف على اللوحة في قاعدة البيانات الحالية.</p>
+            <p class="result-desc">تأكد من وضوح صورة الشاشة والمحاولة مجدداً.</p>
             <button onclick="resetUI()" class="btn">حاول بصورة أوضح</button>
           </div>
         `;

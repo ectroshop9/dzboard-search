@@ -32,6 +32,17 @@
       position: relative;
     }
 
+    /* النجوم المتحركة في الخلفية */
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      pointer-events: none;
+    }
+
     /* الشبكة الخلفية المضيئة */
     body::before {
       content: "";
@@ -82,20 +93,6 @@
       flex: 1;
       max-width: 450px;
       position: relative;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 14px;
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #60a5fa;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 20px;
-      text-transform: uppercase;
     }
 
     .title {
@@ -235,15 +232,17 @@
   </style>
 </head>
 <body>
+  <!-- إضافة خلفية النجوم المتحركة -->
+  <canvas id="stars-canvas"></canvas>
+  
   <div class="glow-blob"></div>
   
   <div class="container">
     <!-- Upload Section -->
     <div class="upload-section">
       <div id="main-ui">
-        <span class="badge">نظام البحث المرئي</span>
-        <h1 class="title">التعرف الذكي على<br><span>شاشات التلفاز</span></h1>
-        <p class="subtitle">قم برفع صورة واضحة للتلفاز أو شاشة العرض، وسيقوم النظام بمطابقتها مع قاعدة بيانات الأجهزة فوراً.</p>
+        <h1 class="title">التعرف الذكي على<br><span>اللوحات الإلكترونية</span></h1>
+        <p class="subtitle">قم برفع صورة واضحة للوحة التلفاز (اللوحة الأم "Carte Mère"، وحدة الطاقة "Alimentation"، لوحة "T-CON"، أو درايفر الليدات) وسيقوم النظام بمطابقتها فوراً.</p>
 
         <div class="upload-card" onclick="document.getElementById('fileInput').click()">
           <div class="icon-wrapper">
@@ -252,7 +251,7 @@
               <polyline points="17 2 12 7 7 2"></polyline>
             </svg>
           </div>
-          <div class="upload-text">اضغط هنا لرفع صورة الشاشة</div>
+          <div class="upload-text">اضغط هنا لرفع صورة اللوحة</div>
           <div class="upload-hint">يدعم JPG, PNG (حد أقصى 5MB)</div>
         </div>
         <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
@@ -267,6 +266,64 @@
   </div>
 
   <script>
+    // ==========================================
+    // BACKGROUND STARS ANIMATION
+    // ==========================================
+    const starsCanvas = document.getElementById('stars-canvas');
+    const starsCtx = starsCanvas.getContext('2d');
+    let starsWidth, starsHeight, starsArray = [];
+
+    function initStars() {
+      starsWidth = window.innerWidth;
+      starsHeight = window.innerHeight;
+      starsCanvas.width = starsWidth;
+      starsCanvas.height = starsHeight;
+      starsArray = [];
+      // إضافة 150 نجمة
+      for (let i = 0; i < 150; i++) {
+        starsArray.push({
+          x: Math.random() * starsWidth,
+          y: Math.random() * starsHeight,
+          radius: Math.random() * 1.5,
+          vx: Math.floor(Math.random() * 50) - 25,
+          vy: Math.floor(Math.random() * 50) - 25,
+          alpha: Math.random()
+        });
+      }
+    }
+
+    function animateStars() {
+      starsCtx.clearRect(0, 0, starsWidth, starsHeight);
+      starsCtx.fillStyle = '#ffffff';
+      
+      starsArray.forEach(star => {
+        starsCtx.globalAlpha = star.alpha;
+        starsCtx.beginPath();
+        starsCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        starsCtx.fill();
+        
+        // تحريك النجوم ببطء
+        star.x += star.vx / 100;
+        star.y += star.vy / 100;
+        
+        // ارتداد النجوم عند ملامسة الحواف
+        if (star.x < 0 || star.x > starsWidth) star.vx = -star.vx;
+        if (star.y < 0 || star.y > starsHeight) star.vy = -star.vy;
+        
+        // وميض النجوم (Twinkle)
+        star.alpha += (Math.random() - 0.5) * 0.05;
+        if (star.alpha < 0.1) star.alpha = 0.1;
+        if (star.alpha > 0.8) star.alpha = 0.8;
+      });
+      
+      starsCtx.globalAlpha = 1.0;
+      requestAnimationFrame(animateStars);
+    }
+
+    initStars();
+    animateStars();
+    window.addEventListener('resize', initStars);
+
     // ==========================================
     // 3D EXPERIANCE - 3D REALISTIC SMART TV
     // ==========================================
@@ -309,14 +366,14 @@
       map: screenTexture,
       emissive: 0xffffff,
       emissiveMap: screenTexture,
-      emissiveIntensity: 1.2, // قوة سطوع الشاشة
-      roughness: 0.05, // زجاج أملس جداً يعكس الضوء
+      emissiveIntensity: 1.2, 
+      roughness: 0.05, 
       metalness: 0.1,
       clearcoat: 1.0, 
       clearcoatRoughness: 0.05
     });
     const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-    screenMesh.position.z = (tvThickness / 2) + 0.005; // أمام الإطار مباشرة
+    screenMesh.position.z = (tvThickness / 2) + 0.005;
     tvGroup.add(screenMesh);
 
     // 4. حامل التلفاز (Stand - ألمنيوم مصقول)
@@ -336,7 +393,7 @@
     base.position.y = -(tvHeight / 2) - 0.4;
     tvGroup.add(base);
 
-    // إضاءة المشهد (لعكس لمعان الزجاج والمعدن)
+    // إضاءة المشهد
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -374,7 +431,7 @@
       // حركة طفو خفيفة
       tvGroup.position.y = Math.sin(time) * 0.05;
 
-      // تحديث محتوى الشاشة (رسم رادار وشبكة مسح ذكية)
+      // تحديث محتوى الشاشة
       drawScreen(time);
 
       renderer.render(scene, camera);
@@ -406,21 +463,19 @@
       ctx.shadowBlur = 20;
       ctx.shadowColor = '#60a5fa';
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 50px Cairo, sans-serif';
+      ctx.font = 'bold 60px Cairo, sans-serif';
       ctx.textAlign = 'center';
       
-      // تأثير النبض في النص
       ctx.globalAlpha = 0.5 + Math.abs(Math.sin(time * 2)) * 0.5;
-      ctx.fillText('AI VISION SYSTEM', 512, 256);
+      ctx.fillText('DZBoard', 512, 256);
       
       ctx.font = '24px Cairo, sans-serif';
       ctx.fillStyle = '#94a3b8';
-      ctx.fillText('WAITING FOR INPUT...', 512, 300);
+      ctx.fillText('WAITING FOR INPUT...', 512, 310);
       
       ctx.globalAlpha = 1.0;
       ctx.shadowBlur = 0;
 
-      // إخبار Three.js بتحديث نسيج الشاشة
       screenTexture.needsUpdate = true;
     }
 
@@ -448,7 +503,7 @@
       resultContainer.innerHTML = `
         <div class="loading-state">
           <div class="loading-spinner"></div>
-          <h3 style="font-weight: 800; font-size: 20px; margin-bottom: 5px;">جاري فحص الشاشة...</h3>
+          <h3 style="font-weight: 800; font-size: 20px; margin-bottom: 5px;">جاري فحص اللوحة...</h3>
           <p style="color: #94a3b8; font-size: 14px;">يتم الآن مطابقة المعالم في قاعدة البيانات</p>
         </div>
       `;
@@ -462,9 +517,9 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <h3 class="result-name">تم التعرف بنجاح!</h3>
-            <p class="result-desc">الشاشة: <strong style="color:#fff">${data.product.name}</strong></p>
-            <a href="${data.product_url || '#'}" target="_blank" class="btn">عرض تفاصيل المنتج</a>
-            <button onclick="resetUI()" class="btn btn-outline">فحص شاشة أخرى</button>
+            <p class="result-desc">القطعة: <strong style="color:#fff">${data.product.name}</strong></p>
+            <a href="${data.product_url || '#'}" target="_blank" class="btn">عرض التفاصيل</a>
+            <button onclick="resetUI()" class="btn btn-outline">فحص لوحة أخرى</button>
           </div>
         `;
       } else {
@@ -474,7 +529,7 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </div>
             <h3 class="result-name">لم يتم العثور على تطابق</h3>
-            <p class="result-desc">تأكد من وضوح صورة الشاشة والمحاولة مجدداً.</p>
+            <p class="result-desc">تأكد من وضوح صورة اللوحة والمحاولة مجدداً.</p>
             <button onclick="resetUI()" class="btn">حاول بصورة أوضح</button>
           </div>
         `;

@@ -46,6 +46,13 @@ def load_cache():
 def home():
     return {"status": "ok"}
 
+@app.get("/")
+def landing():
+    from fastapi.responses import HTMLResponse
+    html_path = os.path.join(os.path.dirname(__file__), 'landing.html')
+    with open(html_path, 'r', encoding='utf-8') as f:
+        return HTMLResponse(content=f.read())
+
 @app.get("/uploadbytech")
 def uploadbytech():
     from fastapi.responses import HTMLResponse

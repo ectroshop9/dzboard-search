@@ -44,7 +44,7 @@ def load_cache():
     try:
         response = supabase.from('products').select('id,name,phash,dhash').not_.is_('phash', 'null').execute()
         STORED_PRODUCTS_CACHE = response.data or []
-    except:
+    except Exception:
         STORED_PRODUCTS_CACHE = []
 
 @app.get("/")

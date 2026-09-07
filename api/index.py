@@ -43,6 +43,7 @@ def load_cache():
         STORED_PRODUCTS_CACHE = []
 
 @app.get("/health")
+@app.head("/health")
 def health():
     return {"status": "ok"}
 

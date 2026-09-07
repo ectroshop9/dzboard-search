@@ -111,3 +111,7 @@ async def reload_cache():
 
 # تحميل الكاش عند التشغيل
 load_cache()
+
+# ✅ Vercel Handler
+from mangum import Mangum
+handler = Mangum(app)

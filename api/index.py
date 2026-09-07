@@ -1,7 +1,6 @@
 import io
 import os
 from PIL import Image, ImageEnhance, ImageOps
-from rembg import remove
 import imagehash
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,14 +26,9 @@ STORED_PRODUCTS_CACHE = None
 def generate_board_hashes(image_bytes: bytes):
     img = Image.open(io.BytesIO(image_bytes))
     img = ImageOps.exif_transpose(img)
-    output_bytes = remove(image_bytes)
-    img_rgba = Image.open(io.BytesIO(output_bytes)).convert("RGBA")
-    bbox = img_rgba.getbbox()
-    img_cropped = img_rgba.crop(bbox) if bbox else img_rgba
-    img_resized = img_cropped.resize((512, 512), Image.Resampling.LANCZOS)
-    background = Image.new("RGB", (512, 512), (0, 0, 0))
-    background.paste(img_resized, mask=img_resized.split()[3])
-    enhancer = ImageEnhance.Contrast(background)
+    img = img.convert("RGB")
+    img_resized = img.resize((512, 512), Image.Resampling.LANCZOS)
+    enhancer = ImageEnhance.Contrast(img_resized)
     img_final = enhancer.enhance(1.3)
     p_hash = imagehash.phash(img_final)
     d_hash = imagehash.dhash(img_final)

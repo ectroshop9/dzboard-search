@@ -2,7 +2,8 @@ fastapi
 supabase
 imagehash
 pillow
-rembg
 python-multipart
 httpx
 mangum
+opencv-python-headless
+numpy
